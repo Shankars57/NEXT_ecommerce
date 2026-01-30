@@ -1,5 +1,5 @@
-'use client';
-
+import prisma from '@/lib/prisma';
+import { useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -8,7 +8,33 @@ import { ShoppingCart, ArrowLeft, LogIn, LogOut, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { toast } from 'sonner';
-import { useState } from 'react';
+
+export async function getServerSideProps(context) {
+  const { id } = context.params;
+
+  try {
+    const product = await prisma.product.findUnique({
+      where: { id },
+    });
+
+    if (!product) {
+      return {
+        notFound: true,
+      };
+    }
+
+    return {
+      props: {
+        product: JSON.parse(JSON.stringify(product)),
+      },
+    };
+  } catch (error) {
+    console.error('Error fetching product:', error);
+    return {
+      notFound: true,
+    };
+  }
+}
 
 export default function ProductDetail({ product }) {
   const router = useRouter();
