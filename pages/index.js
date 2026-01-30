@@ -209,7 +209,7 @@ export default function Home({ products, currentPage, totalPages, searchQuery })
           <div className="flex justify-center gap-4">
             {currentPage > 1 && (
               <Link
-                href={`/?${new URLSearchParams({ ...Object.fromEntries(searchParams), page: currentPage - 1 }).toString()}`}
+                href={`/?${new URLSearchParams({ ...router.query, page: currentPage - 1 }).toString()}`}
               >
                 <Button variant="outline" data-testid="pagination-prev">
                   Previous
@@ -223,7 +223,7 @@ export default function Home({ products, currentPage, totalPages, searchQuery })
             </div>
             {currentPage < totalPages && (
               <Link
-                href={`/?${new URLSearchParams({ ...Object.fromEntries(searchParams), page: currentPage + 1 }).toString()}`}
+                href={`/?${new URLSearchParams({ ...router.query, page: currentPage + 1 }).toString()}`}
               >
                 <Button variant="outline" data-testid="pagination-next">
                   Next
