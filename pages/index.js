@@ -67,7 +67,7 @@ export default function Home({ products, currentPage, totalPages, searchQuery })
 
   const handleSearch = (e) => {
     e.preventDefault();
-    const params = new URLSearchParams(searchParams);
+    const params = new URLSearchParams(router.query);
     if (search) {
       params.set('q', search);
     } else {
