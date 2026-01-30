@@ -1,7 +1,5 @@
-'use client';
-
-import { useEffect, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useState } from 'react';
+import { useRouter } from 'next/router';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useSession } from 'next-auth/react';
@@ -10,10 +8,59 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { toast } from 'sonner';
+import prisma from '@/lib/prisma';
+
+export async function getServerSideProps(context) {
+  const { query } = context;
+  const page = parseInt(query.page || '1', 10);
+  const searchQuery = query.q || '';
+  const itemsPerPage = 8;
+
+  try {
+    const where = searchQuery
+      ? {
+          OR: [
+            { name: { contains: searchQuery, mode: 'insensitive' } },
+            { description: { contains: searchQuery, mode: 'insensitive' } },
+          ],
+        }
+      : {};
+
+    const [products, totalCount] = await Promise.all([
+      prisma.product.findMany({
+        where,
+        skip: (page - 1) * itemsPerPage,
+        take: itemsPerPage,
+        orderBy: { createdAt: 'desc' },
+      }),
+      prisma.product.count({ where }),
+    ]);
+
+    const totalPages = Math.ceil(totalCount / itemsPerPage);
+
+    return {
+      props: {
+        products: JSON.parse(JSON.stringify(products)),
+        currentPage: page,
+        totalPages,
+        searchQuery,
+      },
+    };
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    return {
+      props: {
+        products: [],
+        currentPage: 1,
+        totalPages: 1,
+        searchQuery: '',
+      },
+    };
+  }
+}
 
 export default function Home({ products, currentPage, totalPages, searchQuery }) {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const { data: session, status } = useSession();
   const [search, setSearch] = useState(searchQuery || '');
   const [isAdding, setIsAdding] = useState({});
