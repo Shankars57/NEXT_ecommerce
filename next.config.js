@@ -2,10 +2,11 @@ const nextConfig = {
   output: 'standalone',
   images: {
     unoptimized: true,
+    domains: ['images.unsplash.com'],
   },
   experimental: {
     // Remove if not using Server Components
-    serverComponentsExternalPackages: ['mongodb'],
+    serverComponentsExternalPackages: ['@prisma/client'],
   },
   webpack(config, { dev }) {
     if (dev) {
